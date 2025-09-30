@@ -8,15 +8,15 @@ import { ApiResponse } from '../utils/ApiResponse.js'
 const registerUser = asyncHandler( async (req, res) => {
    
 
-    const {fullName, email , username , password } = req.body
-    console.log("email: ", email);
+    const {fullName, email , username , password } = req.body;
+    // console.log("email: ", email);
     if (
         [fullName, email,username ,password].some((field) => field?.trim() === "" )
         )
         {
-            throw new ApiError(400,"all feilds are required")      
+            throw new ApiError(400,"all fields are required")      
         }
-        const existedUser = username.findOne({
+        const existedUser = await User.findOne({
             $or: [{username}, {email}]
 
         })
@@ -27,7 +27,17 @@ const registerUser = asyncHandler( async (req, res) => {
         }
 
         const avatarLocalPath = req.files?.avatar[0]?.path;
-        const coverImageLocalPath = req.files?.coverImage[0]?.path;
+        // const coverImageLocalPath = req.files?.coverImage[0]?.path;
+
+        let coverImageLocalPath;
+        if (req.files && Array.isArray(req.files.coverImage)&& req.files.coverImage.length >0) {
+            coverImageLocalPath = req.files.coverImage[0].path
+        }
+
+
+
+
+
 
         if (!avatarLocalPath) {
             throw new ApiError(400,"avatar file is required")
@@ -50,7 +60,7 @@ const registerUser = asyncHandler( async (req, res) => {
             username: username.toLowerCase()
         })
 
-        const createdUser = await User.findById(user,_id).select(
+        const createdUser = await User.findById(user._id).select(
             "-password -refreshToken"
         )
 

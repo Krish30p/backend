@@ -23,7 +23,7 @@ const userSchema = new Schema({
         type: String,
         required: true,
         trim: true,
-        index: true
+        // index: true
     },
     avatar:{
         type: String,  //cloudinary  url
@@ -61,7 +61,7 @@ const userSchema = new Schema({
 )
 
 userSchema.pre("save", async function (next) {
-    if(!this.ismodified("password")) return next();
+    if(!this.isModified("password")) return next();
 
     this.password = await bcrypt.hash(this.password, 10)
     next()
